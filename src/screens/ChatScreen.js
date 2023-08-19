@@ -3,16 +3,15 @@ import React, { useEffect, useRef, useState } from 'react'
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Contacts from '../components/Contacts';
 import { io } from "socket.io-client";
-import { allUsersRoute, host } from '../utils/APIRoutes';
+import { allUsersRoute } from '../utils/APIRoutes';
 import axios from 'axios';
+import {API_HOST} from '@env';
 
 const ChatScreen = ({navigation}) => {
     const socket = useRef();
     const [contacts, setContacts] = useState([]);
     const [currentUser, setCurrentUser] = useState(undefined)
-    const [currentChat, setCurrentChat] = useState(undefined);
     const [isContactAvailable, setIsContactAvailable] = useState(false)
-    const [isNavigateChatContainer, setIsNavigateChatContainer] = useState(false);
 
     const callLogout = async() => {
         try {
@@ -38,9 +37,8 @@ const ChatScreen = ({navigation}) => {
     }, [])
 
     useEffect(()=>{
-        console.log("im socket", socket)
         if(currentUser){
-          socket.current = io(host);
+          socket.current = io(API_HOST);
           socket.current.emit("add-user", currentUser._id);
         }
     },[currentUser]);
@@ -59,7 +57,7 @@ const ChatScreen = ({navigation}) => {
         navigation.navigate("chatContainer", {
             "currentChat": chat, 
             "socket": socket.current, 
-            "currentUser": currentUser 
+            "currentUser": currentUser,
         })
     }
 
