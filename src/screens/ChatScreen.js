@@ -33,6 +33,7 @@ const ChatScreen = ({navigation}) => {
                 navigation.navigate("Login");
             }
         }
+        
         navigationTo();
     }, [])
 
