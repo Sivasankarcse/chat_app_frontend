@@ -1,17 +1,43 @@
-import { View, Text, StyleSheet, Modal, TouchableOpacity, FlatList, TextInput, KeyboardAvoidingView } from 'react-native'
-import React, { useEffect, useRef, useState } from 'react'
+import { View, Text, StyleSheet, Modal, TouchableOpacity, FlatList, TextInput, KeyboardAvoidingView, ScrollView, Image, Platform } from 'react-native'
+import React, { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { getAllMessagesRoute, sendMessageRoute } from '../utils/APIRoutes';
 import axios from 'axios';
 import { Feather, AntDesign } from '@expo/vector-icons'; 
+import { useNavigation } from '@react-navigation/native';
 
 const ChatContainer = (props) => {
+    const navigation = useNavigation()
     const [messages, setMessages] = useState([]);
     const [typeMsg, setTypeMsg] = useState(undefined);
     const [arrivalMessage, setArrivalMessage] = useState(null);
-    const scrollRef = useRef();
+    const scrollViewRef = useRef();
     const currentChat = props?.route?.params?.currentChat
     const currentUser = props?.route?.params?.currentUser
     const socket = props?.route?.params?.socket
+
+    useLayoutEffect(() => {
+        navigation.setOptions({
+            headerTitle: (props) => (
+                <View style={{flexDirection: 'row', justifyContent: 'center', alignItems: 'center'}}>
+                    <Image 
+                        source={{ uri: "https://images.unsplash.com/photo-1575936123452-b67c3203c357?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8aW1hZ2V8ZW58MHx8MHx8fDA%3D&w=1000&q=80" }}
+                        style={{height: 40, width: 40, borderRadius: 50}}
+                    />
+                    <View style={{alignItems: 'center'}}>
+                        <Text
+                            {...props}
+                            style={{color: 'white', fontWeight: 'bold', fontSize: 16, marginLeft: 10}}>
+                            {currentChat?.username}
+                        </Text>
+                        <Text style={{fontSize: 12, color: 'white'}}>Online</Text>
+                    </View>
+                </View>
+              ),
+              headerStyle: {
+                backgroundColor: '#f4511e', //Set Header color
+            },
+        })
+    }, [navigation])
 
     useEffect(() => {
         const fetchData = async () => {
@@ -92,8 +118,8 @@ const ChatContainer = (props) => {
                 </View>
                 <Text style={
                     status
-                    ? {alignSelf: 'flex-end', marginLeft: 40, fontSize: 12, color: 'gray' }
-                    : {alignSelf: 'flex-start'}
+                    ? {alignSelf: 'flex-end', marginLeft: 40, fontSize: 11, color: 'gray', marginTop: 4 }
+                    : {alignSelf: 'flex-start', marginTop: 2, fontSize: 11, color: 'gray',}
                 }>{val.item.hour}:{val.item.mins}</Text>
             </View>
         )
@@ -101,22 +127,28 @@ const ChatContainer = (props) => {
     return (
         <View style={styles.chatContainer}>
                 {messages ? (
-                    <FlatList
-                        data={messages}
-                        renderItem={(val, index) => renderItem(val, index)}              
-                        keyExtractor={(item, index) => {
-                            return index.toString();
-                        }}   
-                    />
+                    <ScrollView 
+                        ref={scrollViewRef}
+                        onContentSizeChange={() => scrollViewRef.current.scrollToEnd({ animated: true })}                
+                        style={{height: "70%"}}
+                    >
+                        <FlatList
+                            data={messages}
+                            renderItem={(val, index) => renderItem(val, index)}              
+                            keyExtractor={(item, index) => {
+                                return index.toString();
+                            }}   
+                        />
+                    </ScrollView>
                 ) : <Text>Empty Msgs</Text>}
                 <KeyboardAvoidingView
                     behavior={Platform.OS === "ios" ? "padding" : null}
                     style={{flex: 1, justifyContent: 'flex-end'}}
-                    keyboardVerticalOffset={64}
+                    keyboardVerticalOffset={Platform.OS === "ios" ? 55: 0}
                 >
                 <View style={styles.messaginginputContainer}>
                     <TouchableOpacity
-                        style={{alignSelf: 'center', width: "10%", justifyContent: 'center'}}
+                        style={{alignSelf: 'center', justifyContent: 'center', width: "8%"}}
                         onPress={() => handleSendMsg(typeMsg)}
                     >
                         <AntDesign name="plus" size={24} color="black" />
@@ -143,13 +175,19 @@ export default ChatContainer
 const styles = StyleSheet.create({
     chatContainer: {
         flex: 1,
+        backgroundColor: 'green'
     },
     messaginginputContainer: {
+        paddingBottom: "12%",
+        // paddingTop: "10%",
+        // marginBottom: "10%",
+        // flex: 1,
+        padding: 10,
         width: "100%",
-        minHeight: 100,
+        height: 100,
         backgroundColor: "white",
-        paddingVertical: 30,
-        paddingHorizontal: 15,
+        // paddingVertical: 30,
+        // paddingHorizontal: 15,
         justifyContent: "center",
         flexDirection: "row",
     },
@@ -157,7 +195,6 @@ const styles = StyleSheet.create({
         width: "80%",
         borderWidth: 1,
         padding: 6,
-        // flex: 2,
         marginRight: 10,
         borderRadius: 10,
     },
@@ -172,9 +209,9 @@ const styles = StyleSheet.create({
     mmessageWrapper: {
         marginTop: 4,
         marginHorizontal: 10,
-        paddingHorizontal: 10,
-        borderWidth: 1,
+        paddingHorizontal: 8,
         borderRadius: 6,
+        padding: 3,
         marginVertical: 1,
         backgroundColor: 'lightgray',
     }
