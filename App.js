@@ -20,7 +20,11 @@ export default function App() {
 
   return (
     <NavigationContainer>
-      <Stack.Navigator>
+      <Stack.Navigator
+        screenOptions={{
+          headerBackTitleVisible: false
+        }}
+      >
         <Stack.Screen name='Chat' component={ChatScreen} />
         <Stack.Screen 
           name="chatContainer" 

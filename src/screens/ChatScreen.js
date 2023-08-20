@@ -1,5 +1,5 @@
 import { View, Text, TouchableOpacity, ActivityIndicator } from 'react-native'
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Contacts from '../components/Contacts';
 import { io } from "socket.io-client";
